@@ -1,0 +1,12 @@
+#Mon Oct 15 13:58:15 CST 2012
+connectionInfoProperty=mysql
+detect.m2m=false
+eclipse.preferences.version=1
+enableAnalysisProperty=false
+generate.version=false
+newCatalogProperty=compass
+re.daoFile=src/applicationContext.xml
+re.lemfId=entityManagerFactory
+re.settings=/sjc/jpa.reveng.xml
+re.strategy=
+schemaProperty=compass

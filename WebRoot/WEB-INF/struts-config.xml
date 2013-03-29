@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts-config PUBLIC
+          "-//Apache Software Foundation//DTD Struts Configuration 1.3//EN"
+          "http://struts.apache.org/dtds/struts-config_1_3.dtd">
+<struts-config>
+	<form-beans>
+		<form-bean name="categoryActionForm" type="com.sjc.action.form.CategoryActionForm"></form-bean>
+		<form-bean name="productActionForm" type="com.sjc.action.form.ProductActionForm"></form-bean>
+	</form-beans>
+	<action-mappings>
+		<action path="/productAction" 
+				scope="request" 
+				name="productActionForm" 
+				parameter="method" 
+				type="org.springframework.web.struts.DelegatingActionProxy">
+			<forward name="saveproduct" path="/product/save.jsp"></forward>
+			<forward name="tolistall" path="/productAction.do?method=list" redirect="true"></forward>
+			<forward name="listAll" path="/product/list.jsp"></forward>
+			<forward name="searchresult" path="/product/listresult.jsp"></forward>
+			<forward name="toupdate" path="/product/update.jsp"></forward>
+		</action>	
+		
+		
+		<action path="/categoryAction" 
+				scope="request" 
+				name="categoryActionForm" 
+				parameter="method" 
+				type="org.springframework.web.struts.DelegatingActionProxy">
+			<forward name="savecategory" path="/category/save.jsp"></forward>
+			<forward name="toupdate" path="/category/update.jsp"></forward>
+			<forward name="listAll" path="/category/list.jsp"></forward>
+			<forward name="tolist" path="/categoryAction.do?method=list" redirect="true"></forward>
+		</action>	
+							
+	</action-mappings>
+</struts-config>

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd 
+	http://www.springframework.org/schema/tx 
+	http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+	http://www.springframework.org/schema/aop 
+	http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+	http://www.springframework.org/schema/context 
+	http://www.springframework.org/schema/context/spring-context-2.5.xsd
+	http://www.springframework.org/schema/util 
+	http://www.springframework.org/schema/util/spring-util-2.5.xsd">
+
+	<context:annotation-config/>
+	<context:component-scan base-package="com.sjc"></context:component-scan>
+	<aop:config></aop:config>
+	
+	<aop:aspectj-autoproxy></aop:aspectj-autoproxy>
+	
+	
+	<tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true"/>
+	
+	<bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+		<property name="persistenceUnitName" value="sjcPU" />
+		<property name="persistenceXmlLocation" value="classpath:META-INF/persistence.xml"></property>
+	</bean>
+	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+		<property name="entityManagerFactory" ref="entityManagerFactory" />
+	</bean>
+	
+	<bean id="categoryDAO" class="com.sjc.dao.impl.CategoryDAO">
+		<property name="entityManagerFactory" ref="entityManagerFactory" />
+	</bean>
+	<bean id="productDAO" class="com.sjc.dao.impl.ProductDAO">
+		<property name="entityManagerFactory" ref="entityManagerFactory" />
+	</bean>
+	
+	<!-- compass配置 -->
+	
+	<bean id="compassAnnotationsConfiguration" class="org.compass.annotations.config.CompassAnnotationsConfiguration">
+	</bean>
+	
+	<bean id="compass" class="org.compass.spring.LocalCompassBean">
+		<property name="compassConfiguration" ref="compassAnnotationsConfiguration"></property>
+		<!--  
+		<property name="resourceLocations" value="classpath:com/sjc/model"></property>
+		-->
+		<property name="classMappings">
+			<list>
+				<value>com.sjc.model.Product</value>
+				<value>com.sjc.model.Category</value>
+			</list>
+		</property>
+		<property name="compassSettings">
+			<props>
+				<!-- 索引存放位置 -->
+				<prop key="compass.engine.connection">f:/lucene/index</prop>
+				<!-- compass使用的事务 -->
+				<prop key="compass.transaction.factory">org.compass.spring.transaction.SpringSyncTransactionFactory</prop>
+				<!-- 关键字高亮前缀修饰符 -->
+				<prop key="compass.engine.highlighter.default.formatter.simple.pre"><![CDATA[<font color='red'>]]></prop>
+				<!-- 关键字高亮后缀修饰符 -->
+				<prop key="compass.engine.highlighter.default.formatter.simple.post"><![CDATA[</font>]]></prop>
+				<!-- 自定义分词器 -->
+				<prop key="compass.engine.analyzer.default.type">net.paoding.analysis.analyzer.PaodingAnalyzer</prop>
+			</props>
+		</property>
+		<property name="transactionManager" ref="transactionManager"></property>
+	</bean>
+	
+	<bean id="gpsDevice" class="org.compass.gps.device.jpa.JpaGpsDevice">
+		<property name="entityManagerFactory" ref="entityManagerFactory"></property>
+		<property name="injectEntityLifecycleListener" value="true"></property>
+		<property name="name" value="gpsDevice"></property>
+		<property name="mirrorDataChanges" value="true"></property>
+	</bean>
+	
+	
+	<bean id="compassGps" class="org.compass.gps.impl.SingleCompassGps" init-method="start" destroy-method="stop">
+		<property name="compass" ref="compass"></property>
+		<property name="gpsDevices" ref="gpsDevice"></property>
+	</bean>
+	
+	<bean id="compassIndexBuilder" class="com.sjc.util.CompassIndexBuilder">
+		<property name="buildIndex" value="false"></property>
+		<property name="compassGps" ref="compassGps"></property>
+		<property name="lazyTime" value="10"></property>
+	</bean>
+	
+	
+	<bean id="compassTemplate" class="org.compass.core.CompassTemplate">
+		<property name="compass" ref="compass"></property>
+	</bean>
+	
+</beans>
